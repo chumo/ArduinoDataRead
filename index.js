@@ -3,10 +3,15 @@
 // var httpServer = require('http').createServer(app);
 var five = require('johnny-five');
 var io = require('socket.io')(3000)//(httpServer);
-
+var fs = require('fs');
 
 var port = 3000;
-var FREQ = 100; // millisec
+// Read analog input every readT millisec and send to the client every commT
+var readT = 5; // millisec
+var commT = 1000;
+
+var RUNNING = false;
+var T0;
 
 // httpServer.listen(port);
 console.log('Server available at http://localhost:' + port);
@@ -26,7 +31,7 @@ board.on('ready', function() {
 
   A0 = new five.Sensor({
     pin: "A0",
-    freq: FREQ
+    freq: readT
     // ,
     // threshold: 5
   });
@@ -37,55 +42,51 @@ io.on('connection', function(socket) {
 
   // Scale the sensor's data from 0-1023 to 0-10 and log changes
   A0.on("data", function() {
-    // console.log(data);
-    var value = this.fscaleTo(0, 1023);
-    var dt = Date.now();//moment().toDate();
 
-    dataX.push(dt);
-    dataY.push(value);
-    C += 1;
-// console.log(C);
-    // batch completion
-    if (C >= 1000/FREQ) {
-      socket.emit('pinData', {dataX: dataX, dataY: dataY});
-      C = 0;
-      dataX = [];
-      dataY = [];
+    if (RUNNING) {
+      var value = this.fscaleTo(0, 1023);
+      var dt = (Date.now() - T0)/1000;//moment().toDate();
+
+      dataX.push(dt);
+      dataY.push(value);
+      C += readT;
+
+      if (C >= commT) { // send only one point each commT millisec
+        socket.emit('pinData', {dt: dt, value: value});
+        C = 0;
+      }
     }
 
-    // var tDelta = Date.now()-tPlay
-    // if (value>0.1 && tDelta>50) {
-    //   // To PLAY IN THE CLIENT IS MUCH FASTER BECAUSE THE MP3 CAN BE PRELOADED (see client)
-    //   tPlay = Date.now()
-    //   socket.emit("play_mp3" , { message: 'sbell', value: value });
-    // }
-
-    // datos.push(this.fscaleTo(0, 10));
   });
 
-  socket.on('buttonClick', function(data) {
-    console.log('buttonClick data = ', data);
+  socket.on('startClick', function(data){
+    RUNNING = true;
+    T0 = Date.now();
+    dataX = [];
+    dataY = [];
+  });
 
-    if (data === 'startButton') {
-      // led.stop();
-      // led.on();
-      // // player.play('bell.m', function(err){
-      // //   if (err) console.log(err);
-      // // })
-      // fs.writeFile("/tmp/test", datos, function(err) {
-      //     if(err) {
-      //         return console.log(err);
-      //     }
-      //
-      //     console.log("The file was saved!");
-      // });
-    }
+  socket.on('stopSaveClick', function(data){
+    RUNNING = false;
 
-    if (data === 'stopSaveButton') {
-      // led.stop();
-      // led.off();
-    }
+    var S = dataToText(dataX, dataY, '# Just a test');
 
+    fs.writeFile("data/test", S, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        console.log("The data was saved!");
+    });
   });
 
 });
+
+function dataToText(X, Y, comment){
+  var S = comment + '\n'
+
+  for (var i = 0; i < X.length; i++) {
+    S += X[i] + ',' + Y[i] + '\n'
+  }
+
+  return S;
+}

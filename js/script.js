@@ -1,7 +1,7 @@
 createChart(
     'graphVsT',
     'Analog Read vs Time',
-    'time',
+    'Time (s)',
     'Read',
     ['Analog Read'],
     ['lines'],

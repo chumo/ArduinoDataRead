@@ -1,7 +1,10 @@
 var socket;
 
 $(document).ready(function () {
-  $(".btn").click(clickHandler);
+  // $(".btn").click(clickHandler);
+
+  $("#startButton").click(startFunc);
+  $("#stopSaveButton").click(stopSaveFunc);
 
   socket = io('http://localhost:3000');
   socket.on('connect', function () {
@@ -16,26 +19,29 @@ $(document).ready(function () {
   });
 
   socket.on('pinData', function(data){
-    _(data.dataX).each(function(d, i){
-      dataX.push(data.dataX[i]);
-      dataY.push(data.dataY[i]);
-    })
-    // dataX.push(data.dataX);
-    // dataY.push(data.dataY);
-    // console.log('X: '+data.X);
-    // console.log('Y: '+data.Y);
+    var update = {
+                x: [[data.dt]],
+                y: [[data.value]]
+              };
 
-    if (dataX.length) {
-      changePlot(graphVsT, [dataX], [dataY]);
-    }
+    Plotly.extendTraces(graphVsT, update, [0]);
 
   })
 
 });
 
-var clickHandler = function (e) {
-  var id = e.currentTarget.id
-  console.log('id =', id);
+// var clickHandler = function (e) {
+//   var id = e.currentTarget.id
+//   console.log('id =', id);
+//
+//   // socket.emit('buttonClick', id)
+// };
 
-  socket.emit('buttonClick', id)
-};
+function startFunc(){
+  changePlot(graphVsT, [[]], [[]]);
+  socket.emit('startClick', 1)
+}
+
+function stopSaveFunc(){
+  socket.emit('stopSaveClick', 0)
+}
