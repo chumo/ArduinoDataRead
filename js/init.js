@@ -1,0 +1,2 @@
+var dataX = [];
+var dataY = [];

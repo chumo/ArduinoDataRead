@@ -1,0 +1,11 @@
+.title {
+    color: white;
+    font-family: helvetica;
+    font-size: 28px;
+    font-weight: 100;
+}
+
+.myButton {
+  margin: 5px;
+  width: 100%;
+}
