@@ -4,7 +4,8 @@ $(document).ready(function () {
   // $(".btn").click(clickHandler);
 
   $("#startButton").click(startFunc);
-  $("#stopSaveButton").click(stopSaveFunc);
+  $("#stopSaveButton").click(stopFunc);
+  $("#saveButton").click(saveFunc);
 
   socket = io('http://localhost:3000');
   socket.on('connect', function () {
@@ -39,9 +40,22 @@ $(document).ready(function () {
 
 function startFunc(){
   changePlot(graphVsT, [[]], [[]]);
-  socket.emit('startClick', 1)
+  socket.emit('startClick', 1);
 }
 
-function stopSaveFunc(){
-  socket.emit('stopSaveClick', 0)
+function stopFunc(){
+  socket.emit('stopClick', 0);
+  $('#savePanel').css('display','inline');
+  $('#semiTrans').css('display','inline');
+}
+
+function saveFunc(){
+  $('#savePanel').css('display','none');
+  $('#semiTrans').css('display','none');
+  var fname = $('#fnameInput').val();
+  var comment = $('#commentInput').val();
+  if (fname.length == 0) {
+    fname = moment().format('[saved ]YYYY-MM-DD HH-mm-ss');
+  }
+  socket.emit('saveClick', {fname: fname, comment: comment});
 }

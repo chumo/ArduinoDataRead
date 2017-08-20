@@ -59,19 +59,23 @@ io.on('connection', function(socket) {
 
   });
 
+  socket.on('stopClick', function(data){
+    RUNNING = false;
+  });
+
   socket.on('startClick', function(data){
-    RUNNING = true;
     T0 = Date.now();
     dataX = [];
     dataY = [];
+    RUNNING = true;
   });
 
-  socket.on('stopSaveClick', function(data){
+  socket.on('saveClick', function(data){
     RUNNING = false;
 
-    var S = dataToText(dataX, dataY, '# Just a test');
+    var S = dataToText(dataX, dataY, '# '+data.comment);
 
-    fs.writeFile("data/test", S, function(err) {
+    fs.writeFile("data/"+data.fname+'.csv', S, function(err) {
         if(err) {
             return console.log(err);
         }
