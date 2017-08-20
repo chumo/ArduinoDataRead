@@ -45,6 +45,8 @@ function startFunc(){
 
 function stopFunc(){
   socket.emit('stopClick', 0);
+  $('#fnameInput').val('');
+  $('#commentInput').val('');
   $('#savePanel').css('display','inline');
   $('#semiTrans').css('display','inline');
 }

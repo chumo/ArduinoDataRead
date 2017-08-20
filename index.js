@@ -8,7 +8,7 @@ var fs = require('fs');
 var port = 3000;
 // Read analog input every readT millisec and send to the client every commT
 var readT = 5; // millisec
-var commT = 1000;
+var commT = 820;
 
 var RUNNING = false;
 var T0;
