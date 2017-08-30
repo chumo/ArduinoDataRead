@@ -44,7 +44,7 @@ io.on('connection', function(socket) {
   A0.on("data", function() {
 
     if (RUNNING) {
-      var value = this.fscaleTo(0, 1023);
+      var value = this.fscaleTo(0, 5);
       var dt = (Date.now() - T0)/1000;//moment().toDate();
 
       dataX.push(dt);
