@@ -22,7 +22,7 @@ $(document).ready(function () {
   socket.on('pinData', function(data){
     var update = {
                 x: [[data.dt]],
-                y: [[data.value]]
+                y: [[data.valuePression]]
               };
 
     Plotly.extendTraces(graphVsT, update, [0]);
